@@ -11,9 +11,7 @@ public class VilleService {
 
     List<Ville> villes = new ArrayList<Ville>();
 
-
-    public List<Ville> getVilles() {
-
+    {
         villes.add(new Ville("Nice", 343000));
         villes.add(new Ville("Carcassonne", 47800));
         villes.add(new Ville("Narbonne", 53400));
@@ -22,8 +20,16 @@ public class VilleService {
         villes.add(new Ville("Pau", 77200));
         villes.add(new Ville("Marseille", 850700));
         villes.add(new Ville("Tarbes", 40600));
+    }
 
+    public List<Ville> getVilles() {
         return villes;
     }
+
+    public Ville insertVille(Ville ville) {
+        villes.add(ville);
+        return ville;
+    }
+
 
 }
