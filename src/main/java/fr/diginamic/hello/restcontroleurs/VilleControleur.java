@@ -2,8 +2,10 @@ package fr.diginamic.hello.restcontroleurs;
 
 import fr.diginamic.hello.entites.Ville;
 import fr.diginamic.hello.services.VilleService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,12 +50,16 @@ public class VilleControleur {
 
     //  MÉTHODE POST POUR AJOUTER UNE VILLE
     @PostMapping(path = "/add")
-    public ResponseEntity<String> addVille(@RequestBody Ville ville) {
+    public ResponseEntity<String> addVille(@Valid @RequestBody Ville ville, BindingResult bindingResult) {
 
         for (Ville v : villeService.getVilles()) {
             if (v.getId() == ville.getId()) {
                 return ResponseEntity.badRequest().body("La ville existe déjà");
             }
+        }
+
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
         villeService.insertVille(ville);
@@ -63,21 +69,21 @@ public class VilleControleur {
 
     //  MÉTHODE PUT POUR EDITER UNE VILLE
     @PutMapping(path = "/edit/{id}")
-    public ResponseEntity<String> updateVille(@RequestBody Ville ville) {
+    public ResponseEntity<String> updateVille(@Valid @RequestBody Ville ville, BindingResult bindingResult) {
 
         if (ville == null) {
             return ResponseEntity.badRequest().build();
         }
 
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
+        }
+
         for (Ville v : villeService.getVilles()) {
             if (v.getId() == ville.getId()) {
 
-                v.setId(ville.getId());
-                v.setNom(ville.getNom());
-                v.setNbHabitants(ville.getNbHabitants());
+                villeService.updateVille(ville);
 
-            } else {
-                return ResponseEntity.notFound().build();
             }
         }
 
