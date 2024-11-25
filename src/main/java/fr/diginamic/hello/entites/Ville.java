@@ -1,11 +1,15 @@
 package fr.diginamic.hello.entites;
 
+import java.util.Objects;
+
 public class Ville {
 
+    private int id;
     private String nom;
     private int nbHabitants;
 
-    public Ville(String nom, int nbHabitants) {
+    public Ville(int id, String nom, int nbHabitants) {
+        this.id = id;
         this.nom = nom;
         this.nbHabitants = nbHabitants;
     }
@@ -14,10 +18,42 @@ public class Ville {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Ville{");
-        sb.append("nom='").append(nom).append('\'');
+        sb.append("id=").append(id);
+        sb.append(", nom='").append(nom).append('\'');
         sb.append(", nbHabitants=").append(nbHabitants);
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ville ville = (Ville) o;
+        return id == ville.id && nbHabitants == ville.nbHabitants && Objects.equals(nom, ville.nom);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, nom, nbHabitants);
+    }
+
+    /**
+     * Getter for id.
+     *
+     * @return the value of id.
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Setter for id.
+     *
+     * @param value the new value for id.
+     */
+    public void setId(int value) {
+        this.id = value;
     }
 
     /**

@@ -11,16 +11,18 @@ public class VilleService {
 
     List<Ville> villes = new ArrayList<Ville>();
 
-    {
-        villes.add(new Ville("Nice", 343000));
-        villes.add(new Ville("Carcassonne", 47800));
-        villes.add(new Ville("Narbonne", 53400));
-        villes.add(new Ville("Lyon", 484000));
-        villes.add(new Ville("Foix", 9700));
-        villes.add(new Ville("Pau", 77200));
-        villes.add(new Ville("Marseille", 850700));
-        villes.add(new Ville("Tarbes", 40600));
+    public VilleService() {
+        int id = 1;
+        villes.add(new Ville(id++, "Nice", 343000));
+        villes.add(new Ville(id++, "Carcassonne", 47800));
+        villes.add(new Ville(id++, "Narbonne", 53400));
+        villes.add(new Ville(id++, "Lyon", 484000));
+        villes.add(new Ville(id++, "Foix", 9700));
+        villes.add(new Ville(id++, "Pau", 77200));
+        villes.add(new Ville(id++, "Marseille", 850700));
+        villes.add(new Ville(id++, "Tarbes", 40600));
     }
+
 
     public List<Ville> getVilles() {
         return villes;
@@ -28,6 +30,11 @@ public class VilleService {
 
     public Ville insertVille(Ville ville) {
         villes.add(ville);
+        return ville;
+    }
+
+    public Ville removeVille(Ville ville) {
+        villes.remove(ville);
         return ville;
     }
 
