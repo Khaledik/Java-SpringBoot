@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Scanner;
 
 @RestController
 @RequestMapping("/api/villes")
@@ -22,40 +23,30 @@ public class VilleControleur {
     //  MÉTHODE GET POUR OBTENIR TOUTES LES VILLES
     @GetMapping
     public List<Ville> getAllVilles() {
-        ResponseEntity.ok();
-        return villeService.getVilles();
+        return villeService.extractVilles();
     }
 
 
     //  MÉTHODE GET POUR OBTENIR UNE VILLE PAR SON ID
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<Object> getVille(@PathVariable int id) {
-        Ville ville = null;
-
-        for (Ville v : villeService.getVilles()) {
-            if (v.getId() == id) {
-                ville = v;
-
-            }
-        }
-
-        if (ville == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-
-        return ResponseEntity.ok(ville);
+    @GetMapping(path = "/id/{id}")
+    public Ville getVilleById(@PathVariable int id) {
+        return villeService.extractVille(id);
     }
+
+    //  MÉTHODE GET POUR OBTENIR UNE VILLE PAR SON NOM
+    @GetMapping(path = "/name/{name}")
+    public Ville getVilleByName(@PathVariable String name) {
+        return villeService.extractVille(name);
+    }
+
 
 
     //  MÉTHODE POST POUR AJOUTER UNE VILLE
     @PostMapping(path = "/add")
     public ResponseEntity<String> addVille(@Valid @RequestBody Ville ville, BindingResult bindingResult) {
 
-        for (Ville v : villeService.getVilles()) {
-            if (v.getId() == ville.getId()) {
-                return ResponseEntity.badRequest().body("La ville existe déjà");
-            }
+        if (ville == null) {
+            return ResponseEntity.badRequest().build();
         }
 
         if (bindingResult.hasErrors()) {
@@ -69,7 +60,7 @@ public class VilleControleur {
 
     //  MÉTHODE PUT POUR EDITER UNE VILLE
     @PutMapping(path = "/edit/{id}")
-    public ResponseEntity<String> updateVille(@Valid @RequestBody Ville ville, BindingResult bindingResult) {
+    public ResponseEntity<String> updateVille(@Valid @PathVariable int id, @RequestBody Ville ville, BindingResult bindingResult) {
 
         if (ville == null) {
             return ResponseEntity.badRequest().build();
@@ -79,15 +70,14 @@ public class VilleControleur {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        for (Ville v : villeService.getVilles()) {
-            if (v.getId() == ville.getId()) {
+        Ville villeAModif = villeService.extractVille(id);
 
-                villeService.updateVille(ville);
-
-            }
+        if (villeAModif == null) {
+            return ResponseEntity.notFound().build();
         }
 
 
+        villeService.modifierVille(id, ville);
         return ResponseEntity.ok("Ville mise à jour avec succès");
     }
 
@@ -96,19 +86,13 @@ public class VilleControleur {
     @DeleteMapping(path = "/remove/{id}")
     public ResponseEntity<String> deleteVille(@PathVariable int id) {
 
-        Ville ville = null;
+        Ville ville = villeService.extractVille(id);
 
-        for (Ville v : villeService.getVilles()) {
-            if (v.getId() == id) {
-                ville = v;
-            }
-        }
-
-        if (!villeService.getVilles().contains(ville)) {
+        if (ville == null) {
             return ResponseEntity.notFound().build();
         }
 
-        villeService.removeVille(ville);
+        villeService.supprimerVille(id);
         return ResponseEntity.ok("Ville supprimée avec succès : " + ville.getNom());
     }
 

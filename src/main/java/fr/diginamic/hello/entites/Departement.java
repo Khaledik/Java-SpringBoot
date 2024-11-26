@@ -2,18 +2,18 @@ package fr.diginamic.hello.entites;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Range;
 
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "villes")
-public class Ville {
-
+@Table(name = "departements")
+public class Departement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,32 +22,36 @@ public class Ville {
 
     @NotNull
     @Size(min = 2, max = 100)
-    @Column(name = "nom", nullable = false, length = 100)
+    @Column(name = "nom", length = 100, nullable = false)
     private String nom;
 
-    @Min(1)
-    @Column(name = "nb_habitants", nullable = false)
-    private int nbHabitants;
+    @NotNull
+    @Column(name = "code", length = 10, nullable = false)
+    private int code;
 
-    // RELATION VILLE -> DEPARTEMENT
-    @ManyToOne
-    @JoinColumn(name = "id_departement")
-    private Departement departement;
+    // RELATION DEPARTEMENT -> VILLE
+    @OneToMany(mappedBy = "departement")
+    private Set<Ville> villes;
 
-    public Ville( String nom, int nbHabitants) {
-        this.nom = nom;
-        this.nbHabitants = nbHabitants;
+    {
+        villes = new HashSet<>();
     }
 
-    public Ville() {}
+    public Departement(String nom, int code) {
+        this.nom = nom;
+        this.code = code;
+    }
+
+    public Departement() {
+    }
 
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Ville{");
+        final StringBuilder sb = new StringBuilder("Departement{");
         sb.append("id=").append(id);
         sb.append(", nom='").append(nom).append('\'');
-        sb.append(", nbHabitants=").append(nbHabitants);
+        sb.append(", code=").append(code);
         sb.append('}');
         return sb.toString();
     }
@@ -56,13 +60,13 @@ public class Ville {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Ville ville = (Ville) o;
-        return id == ville.id && nbHabitants == ville.nbHabitants && Objects.equals(nom, ville.nom);
+        Departement that = (Departement) o;
+        return id == that.id && code == that.code && Objects.equals(nom, that.nom);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nom, nbHabitants);
+        return Objects.hash(id, nom, code);
     }
 
     /**
@@ -102,39 +106,21 @@ public class Ville {
     }
 
     /**
-     * Getter for nbHabitants.
+     * Getter for code.
      *
-     * @return the value of nbHabitants.
+     * @return the value of code.
      */
-    @Min(1)
-    public int getNbHabitants() {
-        return nbHabitants;
+    @NotNull
+    public int getCode() {
+        return code;
     }
 
     /**
-     * Setter for nbHabitants.
+     * Setter for code.
      *
-     * @param value the new value for nbHabitants.
+     * @param value the new value for code.
      */
-    public void setNbHabitants(@Min(1) int value) {
-        this.nbHabitants = value;
-    }
-
-    /**
-     * Getter for departement.
-     *
-     * @return the value of departement.
-     */
-    public Departement getDepartement() {
-        return departement;
-    }
-
-    /**
-     * Setter for departement.
-     *
-     * @param value the new value for departement.
-     */
-    public void setDepartement(Departement value) {
-        this.departement = value;
+    public void setCode(@NotNull int value) {
+        this.code = value;
     }
 }

@@ -1,7 +1,14 @@
 package fr.diginamic.hello.services;
 
+import fr.diginamic.hello.dao.DepartementDao;
+import fr.diginamic.hello.dao.VilleDao;
 import fr.diginamic.hello.entites.Ville;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,55 +16,32 @@ import java.util.List;
 @Service
 public class VilleService {
 
-    List<Ville> villes = new ArrayList<Ville>();
+    @Autowired
+    private VilleDao villeDao;
 
-    public VilleService() {
-        villes.add(new Ville("Nice", 343000));
-        villes.add(new Ville("Carcassonne", 47800));
-        villes.add(new Ville("Narbonne", 53400));
-        villes.add(new Ville("Lyon", 484000));
-        villes.add(new Ville("Foix", 9700));
-        villes.add(new Ville("Pau", 77200));
-        villes.add(new Ville("Marseille", 850700));
-        villes.add(new Ville("Tarbes", 40600));
+
+    public List<Ville> extractVilles() {
+        return villeDao.findAllVille();
     }
 
-
-    public List<Ville> getVilles() {
-        return villes;
+    public Ville extractVille(int id) {
+        return villeDao.findVilleById(id);
     }
 
-    public Ville findVilleById(Ville ville) {
-
-        Ville foundVille = null;
-
-        for (Ville v : villes) {
-            if (v.getId() == ville.getId()) {
-                ville = v;
-            }
-        }
-        return ville;
+    public Ville extractVille(String name) {
+        return villeDao.findVilleByName(name);
     }
 
-    public Ville insertVille(Ville ville) {
-        villes.add(ville);
-        return ville;
+    public List<Ville> insertVille(Ville ville) {
+        return villeDao.addToVilles(ville);
     }
 
-    public Ville updateVille(Ville ville) {
-        Ville villeAModif = findVilleById(ville);
-
-
-        villeAModif.setId(ville.getId());
-        villeAModif.setNom(ville.getNom());
-        villeAModif.setNbHabitants(ville.getNbHabitants());
-
-        return villeAModif;
+    public List<Ville> modifierVille(int idVille, Ville villeModifiee) {
+        return villeDao.updateVille(idVille, villeModifiee);
     }
 
-    public Ville removeVille(Ville ville) {
-        villes.remove(ville);
-        return ville;
+    public List<Ville> supprimerVille(int idVille) {
+        return villeDao.removeFromVilles(idVille);
     }
 
 
