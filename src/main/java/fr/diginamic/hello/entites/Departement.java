@@ -27,7 +27,7 @@ public class Departement {
 
     @NotNull
     @Column(name = "code", length = 10, nullable = false)
-    private int code;
+    private String code;
 
     // RELATION DEPARTEMENT -> VILLE
     @OneToMany(mappedBy = "departement")
@@ -37,7 +37,7 @@ public class Departement {
         villes = new HashSet<>();
     }
 
-    public Departement(String nom, int code) {
+    public Departement(String nom, String code) {
         this.nom = nom;
         this.code = code;
     }
@@ -111,7 +111,7 @@ public class Departement {
      * @return the value of code.
      */
     @NotNull
-    public int getCode() {
+    public String getCode() {
         return code;
     }
 
@@ -120,7 +120,7 @@ public class Departement {
      *
      * @param value the new value for code.
      */
-    public void setCode(@NotNull int value) {
+    public void setCode(@NotNull String value) {
         this.code = value;
     }
 }

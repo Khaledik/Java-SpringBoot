@@ -1,50 +1,64 @@
 package fr.diginamic.hello.services;
 
-import fr.diginamic.hello.dao.DepartementDao;
 import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.Ville;
+import fr.diginamic.hello.repositories.DepartementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DepartementService {
 
     @Autowired
-    private DepartementDao departementDao;
+    private DepartementRepository departementRepository;
 
 
     public List<Departement> extractDepartements() {
-        return departementDao.findAllDepartement();
+        return departementRepository.findAll();
     }
 
-    public Departement extractDepartement(int id) {
-        return departementDao.findDepartementById(id);
+
+    public Optional<Departement> extractDepartementByID(int id) {
+        return departementRepository.findById(id);
     }
 
-    public Departement extractDepartement(String name) {
-        return departementDao.findDepartementByName(name);
+
+    public Departement extractDepartementByName(String name) {
+        return departementRepository.findByNom(name);
     }
 
-    public List<Departement> insertDepartement(Departement departement) {
-        return departementDao.addToDepartement(departement);
+    public Departement extractDepartementByCode(String code) {
+        return departementRepository.findByCode(code);
     }
 
-    public List<Departement> modifierDepartement(int idDep, Departement departementModifee) {
-        return departementDao.updateDepartement(idDep, departementModifee);
+
+    public Departement insertDepartement(Departement departement) {
+        if (departement != null) {
+            departementRepository.save(departement);
+        }
+        return departement;
     }
 
-    public List<Departement> supprimerDepartement(int idDep) {
-        return departementDao.removeFromDepartements(idDep);
+    public Departement modifierDepartement(Departement departement) {
+
+        Departement departementAModif = departementRepository.findByCode(departement.getCode());
+
+        departementAModif.setNom(departement.getNom());
+        departementAModif.setCode(departement.getCode());
+
+        return departementRepository.save(departementAModif);
     }
 
-    public List<Ville> getMostPopulatedVilles(int idDep, int nbVilles) {
-        return departementDao.getMostPopulatedVille(idDep, nbVilles);
-    }
+    public Optional<Departement> supprimerDepartement(int id) {
 
-    public List<Ville> extractPopMinMaxFromDep(int idDep ,int min, int max) {
-        return departementDao.getPopVilleMinMaxFromDep(idDep, min, max);
+        Optional<Departement> departement = departementRepository.findById(id);
+
+        departementRepository.deleteById(id);
+
+        return departement;
     }
 
 }

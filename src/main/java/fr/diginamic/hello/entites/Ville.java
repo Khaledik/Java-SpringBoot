@@ -29,14 +29,16 @@ public class Ville {
     @Column(name = "nb_habitants", nullable = false)
     private int nbHabitants;
 
+
     // RELATION VILLE -> DEPARTEMENT
     @ManyToOne
     @JoinColumn(name = "id_departement")
     private Departement departement;
 
-    public Ville( String nom, int nbHabitants) {
+    public Ville(String nom, int nbHabitants, Departement departement) {
         this.nom = nom;
         this.nbHabitants = nbHabitants;
+        this.departement = departement;
     }
 
     public Ville() {}
@@ -48,6 +50,7 @@ public class Ville {
         sb.append("id=").append(id);
         sb.append(", nom='").append(nom).append('\'');
         sb.append(", nbHabitants=").append(nbHabitants);
+        sb.append(", departement=").append(departement);
         sb.append('}');
         return sb.toString();
     }

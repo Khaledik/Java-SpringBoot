@@ -1,47 +1,87 @@
 package fr.diginamic.hello.services;
 
-import fr.diginamic.hello.dao.DepartementDao;
-import fr.diginamic.hello.dao.VilleDao;
+import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.Ville;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import fr.diginamic.hello.repositories.DepartementRepository;
+import fr.diginamic.hello.repositories.VilleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VilleService {
 
     @Autowired
-    private VilleDao villeDao;
+    private VilleRepository villeRepository;
+
+    @Autowired
+    private DepartementRepository departementRepository;
 
 
     public List<Ville> extractVilles() {
-        return villeDao.findAllVille();
+        return villeRepository.findAll();
     }
 
-    public Ville extractVille(int id) {
-        return villeDao.findVilleById(id);
+    public Optional<Ville> extractVilleById(int id) {
+        return villeRepository.findById(id);
     }
 
-    public Ville extractVille(String name) {
-        return villeDao.findVilleByName(name);
+    public Ville extractVilleByName(String name) {
+        return villeRepository.findByNom(name);
     }
 
-    public List<Ville> insertVille(Ville ville) {
-        return villeDao.addToVilles(ville);
+    public List<Ville> extractVillesStartWith(String nom) {
+        return villeRepository.findAllByNomStartingWith(nom);
     }
 
-    public List<Ville> modifierVille(int idVille, Ville villeModifiee) {
-        return villeDao.updateVille(idVille, villeModifiee);
+    public List<Ville> extractVillesGreaterThan(int min) {
+        return villeRepository.findAllByNbHabitantsGreaterThan(min);
     }
 
-    public List<Ville> supprimerVille(int idVille) {
-        return villeDao.removeFromVilles(idVille);
+    public List<Ville> extractVillesBetween(int min, int max) {
+        return villeRepository.findAllByNbHabitantsBetween(min, max);
+    }
+
+    public List<Ville> extractVillesByDepartementGreaterThan(int id, int min) {
+        return villeRepository.findAllByDepartementIdAndNbHabitantsGreaterThan(id, min);
+    }
+
+    public List<Ville> extractVillesByDepartementBetween(int id, int min, int max) {
+        return villeRepository.findAllByDepartementIdAndNbHabitantsBetween(id, min, max);
+    }
+
+    public List<Ville> extractTopNVillesByDepartement(int id, int n) {
+        Pageable pageable = PageRequest.of(0, n);
+        return villeRepository.findTopNVillesByDepartementId(id, pageable);
+    }
+
+    public Ville insertVille(Ville ville) {
+        if (ville.getDepartement() != null) {
+            departementRepository.save(ville.getDepartement());
+        }
+        return villeRepository.save(ville);
+    }
+
+    public Ville modifierVille(int id, Ville ville) {
+        Ville villeAModif = villeRepository.findById(id).get();
+        villeAModif.setNom(ville.getNom());
+        villeAModif.setNbHabitants(ville.getNbHabitants());
+
+        villeRepository.save(villeAModif);
+
+        return villeAModif;
+    }
+
+    public Optional<Ville> supprimerVille(int id) {
+        Optional<Ville> ville = villeRepository.findById(id);
+
+        villeRepository.deleteById(id);
+
+        return ville;
     }
 
 

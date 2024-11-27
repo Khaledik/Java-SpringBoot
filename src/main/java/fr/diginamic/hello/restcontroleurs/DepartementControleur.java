@@ -1,9 +1,8 @@
 package fr.diginamic.hello.restcontroleurs;
 
 import fr.diginamic.hello.entites.Departement;
-import fr.diginamic.hello.entites.Ville;
+import fr.diginamic.hello.repositories.DepartementRepository;
 import fr.diginamic.hello.services.DepartementService;
-import fr.diginamic.hello.services.VilleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +10,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/departements")
 public class DepartementControleur {
+
 
     @Autowired
     private DepartementService departementService;
@@ -27,26 +28,41 @@ public class DepartementControleur {
 
     //  MÉTHODE GET POUR OBTENIR UN DEPARTEMENT PAR SON ID
     @GetMapping(path = "/id/{id}")
-    public Departement getDepartementById(@PathVariable int id) {
-        return departementService.extractDepartement(id);
+    public ResponseEntity<Departement> getDepartementById(@PathVariable int id) {
+
+        Optional<Departement> departement = departementService.extractDepartementByID(id);
+
+        if (departement.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(departement.get());
     }
 
     //  MÉTHODE GET POUR OBTENIR UN DEPARTEMENT PAR SON NOM
     @GetMapping(path = "/name/{name}")
-    public Departement getDepartementByName(@PathVariable String name) {
-        return departementService.extractDepartement(name);
+    public ResponseEntity<Departement> getDepartementByName(@PathVariable String name) {
+
+        Departement departement = departementService.extractDepartementByName(name);
+
+        if (departement == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(departement);
     }
 
-    //  MÉTHODE POST POUR OBTENIR LES N VILLES LES PLUS PEUPLÉES D'UN DEPARTEMENT
-    @GetMapping(path = "/{id}/most-populated-villes")
-    public List<Ville> getMostPopulatedVille(@PathVariable int id, @RequestParam int nombre) {
-        return departementService.getMostPopulatedVilles(id, nombre);
-    }
+    //  MÉTHODE GET POUR OBTENIR UN DEPARTEMENT PAR SON CODE
+    @GetMapping(path = "/code/{code}")
+    public ResponseEntity<Object> getDepartementByCode(@PathVariable String code) {
 
-    //  MÉTHODE POST POUR OBTENIR LES  VILLES AYANT UNE POPULATION COMPRISE ENTRE UN MIN ET UN MAX
-    @GetMapping("/id/{id}/villes-pops")
-    public List<Ville> getVillesPopMinMaxFromDep(@PathVariable int id, @RequestParam int min, @RequestParam int max) {
-        return departementService.extractPopMinMaxFromDep(id, min, max);
+        Departement departement = departementService.extractDepartementByCode(code);
+
+        if (departement == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(departement);
     }
 
 
@@ -68,8 +84,8 @@ public class DepartementControleur {
     }
 
     //  MÉTHODE PUT POUR EDITER UN DEPARTEMENT
-    @PutMapping(path = "/edit/{id}")
-    public ResponseEntity<String> updateDepartement(@Valid @PathVariable int id, @RequestBody Departement departement, BindingResult bindingResult) {
+    @PutMapping(path = "/edit")
+    public ResponseEntity<String> updateDepartement(@Valid @RequestBody Departement departement, BindingResult bindingResult) {
 
         if (departement == null) {
             return ResponseEntity.badRequest().build();
@@ -79,14 +95,13 @@ public class DepartementControleur {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        Departement departementAModif = departementService.extractDepartement(id);
+        Departement departementAModif = departementService.modifierDepartement(departement);
 
         if (departementAModif == null) {
             return ResponseEntity.notFound().build();
         }
 
-        departementService.modifierDepartement(id, departement);
-        return ResponseEntity.ok("Département mise à jour avec succès");
+        return ResponseEntity.ok("Département mise à jour avec succès : " + departementAModif.getNom());
 
     }
 
@@ -94,14 +109,14 @@ public class DepartementControleur {
     @DeleteMapping(path = "/remove/{id}")
     public ResponseEntity<String> deleteVille(@PathVariable int id) {
 
-        Departement departement = departementService.extractDepartement(id);
+        Optional<Departement> departement = departementService.supprimerDepartement(id);
 
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
 
-        departementService.supprimerDepartement(id);
-        return ResponseEntity.ok("Département supprimée avec succès : " + departement.getNom());
+
+        return ResponseEntity.ok("Département supprimée avec succès : " + departement.get().getNom());
     }
 
 
