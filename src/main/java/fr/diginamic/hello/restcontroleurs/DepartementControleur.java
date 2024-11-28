@@ -1,7 +1,6 @@
 package fr.diginamic.hello.restcontroleurs;
 
-import fr.diginamic.hello.entites.Departement;
-import fr.diginamic.hello.repositories.DepartementRepository;
+import fr.diginamic.hello.dtos.DepartementDto;
 import fr.diginamic.hello.services.DepartementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,28 +21,28 @@ public class DepartementControleur {
 
     //  MÉTHODE GET POUR OBTENIR TOUT LES DEPARTEMENT
     @GetMapping
-    public List<Departement> getAllDepartements() {
+    public List<DepartementDto> getAllDepartements() {
         return departementService.extractDepartements();
     }
 
     //  MÉTHODE GET POUR OBTENIR UN DEPARTEMENT PAR SON ID
     @GetMapping(path = "/id/{id}")
-    public ResponseEntity<Departement> getDepartementById(@PathVariable int id) {
+    public ResponseEntity<DepartementDto> getDepartementById(@PathVariable int id) {
 
-        Optional<Departement> departement = departementService.extractDepartementByID(id);
+        DepartementDto departement = departementService.extractDepartementByID(id);
 
-        if (departement.isEmpty()) {
+        if (departement == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(departement.get());
+        return ResponseEntity.ok(departement);
     }
 
     //  MÉTHODE GET POUR OBTENIR UN DEPARTEMENT PAR SON NOM
     @GetMapping(path = "/name/{name}")
-    public ResponseEntity<Departement> getDepartementByName(@PathVariable String name) {
+    public ResponseEntity<DepartementDto> getDepartementByName(@PathVariable String name) {
 
-        Departement departement = departementService.extractDepartementByName(name);
+        DepartementDto departement = departementService.extractDepartementByName(name);
 
         if (departement == null) {
             return ResponseEntity.notFound().build();
@@ -54,9 +53,9 @@ public class DepartementControleur {
 
     //  MÉTHODE GET POUR OBTENIR UN DEPARTEMENT PAR SON CODE
     @GetMapping(path = "/code/{code}")
-    public ResponseEntity<Object> getDepartementByCode(@PathVariable String code) {
+    public ResponseEntity<DepartementDto> getDepartementByCode(@PathVariable String code) {
 
-        Departement departement = departementService.extractDepartementByCode(code);
+        DepartementDto departement = departementService.extractDepartementByCode(code);
 
         if (departement == null) {
             return ResponseEntity.notFound().build();
@@ -68,7 +67,7 @@ public class DepartementControleur {
 
     //  MÉTHODE POST POUR AJOUTER UN DÉPARTEMENT
     @PostMapping(path = "/add")
-    public ResponseEntity<String> addDepartement(@Valid @RequestBody Departement departement, BindingResult bindingResult) {
+    public ResponseEntity<String> addDepartement(@Valid @RequestBody DepartementDto departement, BindingResult bindingResult) {
 
         if (departement == null) {
             return ResponseEntity.badRequest().build();
@@ -85,7 +84,7 @@ public class DepartementControleur {
 
     //  MÉTHODE PUT POUR EDITER UN DEPARTEMENT
     @PutMapping(path = "/edit")
-    public ResponseEntity<String> updateDepartement(@Valid @RequestBody Departement departement, BindingResult bindingResult) {
+    public ResponseEntity<String> updateDepartement(@Valid @RequestBody DepartementDto departement, BindingResult bindingResult) {
 
         if (departement == null) {
             return ResponseEntity.badRequest().build();
@@ -95,7 +94,7 @@ public class DepartementControleur {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        Departement departementAModif = departementService.modifierDepartement(departement);
+        DepartementDto departementAModif = departementService.modifierDepartement(departement);
 
         if (departementAModif == null) {
             return ResponseEntity.notFound().build();
@@ -109,14 +108,14 @@ public class DepartementControleur {
     @DeleteMapping(path = "/remove/{id}")
     public ResponseEntity<String> deleteVille(@PathVariable int id) {
 
-        Optional<Departement> departement = departementService.supprimerDepartement(id);
+        DepartementDto departement = departementService.supprimerDepartement(id);
 
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
 
 
-        return ResponseEntity.ok("Département supprimée avec succès : " + departement.get().getNom());
+        return ResponseEntity.ok("Département supprimée avec succès : " + departement.getNom());
     }
 
 

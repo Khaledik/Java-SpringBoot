@@ -1,5 +1,7 @@
 package fr.diginamic.hello.restcontroleurs;
 
+import fr.diginamic.hello.dtos.DepartementDto;
+import fr.diginamic.hello.dtos.VilleDto;
 import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.Ville;
 import fr.diginamic.hello.services.DepartementService;
@@ -30,29 +32,29 @@ public class VilleControleur {
 
     //  MÉTHODE GET POUR OBTENIR TOUTES LES VILLES
     @GetMapping
-    public List<Ville> getAllVilles() {
+    public List<VilleDto> getAllVilles() {
         return villeService.extractVilles();
     }
 
 
     //  MÉTHODE GET POUR OBTENIR UNE VILLE PAR SON ID
     @GetMapping(path = "/id/{id}")
-    public ResponseEntity<Ville> getVilleById(@PathVariable int id) {
+    public ResponseEntity<VilleDto> getVilleById(@PathVariable int id) {
 
-        Optional<Ville> ville = villeService.extractVilleById(id);
+        VilleDto ville = villeService.extractVilleById(id);
 
-        if (ville.isEmpty()) {
+        if (ville == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(ville.get());
+        return ResponseEntity.ok(ville);
     }
 
     //  MÉTHODE GET POUR OBTENIR UNE VILLE PAR SON NOM
     @GetMapping(path = "/name/{name}")
-    public ResponseEntity<Ville> getVilleByName(@PathVariable String name) {
+    public ResponseEntity<VilleDto> getVilleByName(@PathVariable String name) {
 
-        Ville ville = villeService.extractVilleByName(name);
+        VilleDto ville = villeService.extractVilleByName(name);
 
         if (ville == null) {
             return ResponseEntity.notFound().build();
@@ -65,7 +67,7 @@ public class VilleControleur {
 
     //  MÉTHODE POST POUR AJOUTER UNE VILLE
     @PostMapping(path = "/add")
-    public ResponseEntity<String> addVille(@Valid @RequestBody Ville ville, BindingResult bindingResult) {
+    public ResponseEntity<String> addVille(@Valid @RequestBody VilleDto ville, BindingResult bindingResult) {
 
         if (ville == null) {
             return ResponseEntity.badRequest().build();
@@ -82,7 +84,7 @@ public class VilleControleur {
 
     //  MÉTHODE PUT POUR EDITER UNE VILLE
     @PutMapping(path = "/edit/{id}")
-    public ResponseEntity<String> updateVille(@Valid @PathVariable int id, @RequestBody Ville ville, BindingResult bindingResult) {
+    public ResponseEntity<String> updateVille(@Valid @PathVariable int id, @RequestBody VilleDto ville, BindingResult bindingResult) {
 
         if (ville == null) {
             return ResponseEntity.badRequest().build();
@@ -92,7 +94,7 @@ public class VilleControleur {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        Ville villeAModif = villeService.modifierVille(id, ville);
+        VilleDto villeAModif = villeService.modifierVille(id, ville);
 
         if (villeAModif == null) {
             return ResponseEntity.notFound().build();
@@ -107,14 +109,14 @@ public class VilleControleur {
     @DeleteMapping(path = "/remove/{id}")
     public ResponseEntity<String> deleteVille(@PathVariable int id) {
 
-        Optional<Ville> ville = villeService.supprimerVille(id);
+        VilleDto ville = villeService.supprimerVille(id);
 
-        if (ville.isEmpty()) {
+        if (ville == null) {
             return ResponseEntity.notFound().build();
         }
 
 
-        return ResponseEntity.ok("Ville supprimée avec succès : " + ville.get().getNom());
+        return ResponseEntity.ok("Ville supprimée avec succès : " + ville.getNom());
     }
 
     // REQUÊTES PERSONNALISÉ REPOSITORY JPA
@@ -123,7 +125,7 @@ public class VilleControleur {
     @GetMapping(path = "/start-with/{nom}")
     public ResponseEntity<Object> getVillesStartWith(@PathVariable String nom) {
 
-        List<Ville> villes = villeService.extractVillesStartWith(nom);
+        List<VilleDto> villes = villeService.extractVillesStartWith(nom);
 
         if (villes.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -137,7 +139,7 @@ public class VilleControleur {
     @GetMapping(path = "/pop-min")
     public ResponseEntity<Object> getVillesGreaterThan(@RequestParam int min) {
 
-        List<Ville> villes = villeService.extractVillesGreaterThan(min);
+        List<VilleDto> villes = villeService.extractVillesGreaterThan(min);
 
         if (villes.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -152,7 +154,7 @@ public class VilleControleur {
     public ResponseEntity<Object> getVillesBetween(@RequestParam int min, @RequestParam int max) {
 
 
-        List<Ville> villes = villeService.extractVillesBetween(min, max);
+        List<VilleDto> villes = villeService.extractVillesBetween(min, max);
 
         if (villes.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -166,8 +168,8 @@ public class VilleControleur {
     @GetMapping(path = "/departement/{code}/pop-dep-min")
     public ResponseEntity<Object> getVillesByDepartementGreaterThan(@PathVariable String code, @RequestParam int min) {
 
-        Departement departement = departementService.extractDepartementByCode(code);
-        List<Ville> villes = villeService.extractVillesByDepartementGreaterThan(departement.getId(), min);
+        DepartementDto departement = departementService.extractDepartementByCode(code);
+        List<VilleDto> villes = villeService.extractVillesByDepartementGreaterThan(departement.getCode(), min);
 
         if (departement == null || villes.isEmpty()) {
             ResponseEntity.notFound().build();
@@ -182,8 +184,8 @@ public class VilleControleur {
     @GetMapping(path = "/departement/{code}/pop-dep-min-max")
     public ResponseEntity<Object> getVillesByDepartementBetween(@PathVariable String code, @RequestParam int min, @RequestParam int max) {
 
-        Departement departement = departementService.extractDepartementByCode(code);
-        List<Ville> villes = villeService.extractVillesByDepartementBetween(departement.getId(), min, max);
+        DepartementDto departement = departementService.extractDepartementByCode(code);
+        List<VilleDto> villes = villeService.extractVillesByDepartementBetween(departement.getCode(), min, max);
 
         if (departement == null || villes.isEmpty()) {
             ResponseEntity.notFound().build();
@@ -197,9 +199,9 @@ public class VilleControleur {
     @GetMapping(path = "/departement/{code}/top-villes")
     public ResponseEntity<Object> getTopNVillesByDepartement(@PathVariable String code, @RequestParam int n) {
 
-        Departement departement = departementService.extractDepartementByCode(code);
+        DepartementDto departement = departementService.extractDepartementByCode(code);
 
-        List<Ville> villes = villeService.extractTopNVillesByDepartement(departement.getId(), n);
+        List<VilleDto> villes = villeService.extractTopNVillesByDepartement(departement.getCode(), n);
 
 
         if (departement == null || villes.isEmpty()) {

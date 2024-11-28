@@ -23,15 +23,15 @@ public interface VilleRepository extends JpaRepository<Ville, Integer> {
     List<Ville> findAllByNbHabitantsBetween(int min, int max);
 
     // Recherche de toutes les villes d’un département avec une population supérieure à min
-    @Query("SELECT v FROM Ville v WHERE v.departement.id = :idDep AND v.nbHabitants > :min")
-    List<Ville> findAllByDepartementIdAndNbHabitantsGreaterThan(@Param("idDep") int idDep, @Param("min") int min);
+    @Query("SELECT v FROM Ville v WHERE v.departement.code = :codeDep AND v.nbHabitants > :min")
+    List<Ville> findAllByDepartementIdAndNbHabitantsGreaterThan(@Param("codeDep") String codeDep, @Param("min") int min);
 
     // Recherche de toutes les villes d’un département avec une population entre deux valeurs
-    List<Ville> findAllByDepartementIdAndNbHabitantsBetween(int idDep, int min, int max);
+    List<Ville> findAllByDepartementCodeAndNbHabitantsBetween(String codeDep, int min, int max);
 
     // Recherche des n villes les plus peuplées d’un département
-    @Query("SELECT v FROM Ville v WHERE v.departement.id = :idDep ORDER BY v.nbHabitants DESC")
-    List<Ville> findTopNVillesByDepartementId(@Param("idDep") int idDep, Pageable pageable);
+    @Query("SELECT v FROM Ville v WHERE v.departement.code = :codeDep ORDER BY v.nbHabitants DESC")
+    List<Ville> findTopNVillesByDepartementId(@Param("codeDep") String codeDep, Pageable pageable);
 
 
 }

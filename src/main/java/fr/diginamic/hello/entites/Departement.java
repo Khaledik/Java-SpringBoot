@@ -29,6 +29,9 @@ public class Departement {
     @Column(name = "code", length = 10, nullable = false)
     private String code;
 
+    @Column(name = "nb_habitants")
+    private Integer nbHabitants;
+
     // RELATION DEPARTEMENT -> VILLE
     @OneToMany(mappedBy = "departement")
     private Set<Ville> villes;
@@ -51,7 +54,9 @@ public class Departement {
         final StringBuilder sb = new StringBuilder("Departement{");
         sb.append("id=").append(id);
         sb.append(", nom='").append(nom).append('\'');
-        sb.append(", code=").append(code);
+        sb.append(", code='").append(code).append('\'');
+        sb.append(", nbHabitants=").append(nbHabitants);
+        sb.append(", villes=").append(villes);
         sb.append('}');
         return sb.toString();
     }
@@ -110,8 +115,7 @@ public class Departement {
      *
      * @return the value of code.
      */
-    @NotNull
-    public String getCode() {
+    public @NotNull String getCode() {
         return code;
     }
 
@@ -122,5 +126,41 @@ public class Departement {
      */
     public void setCode(@NotNull String value) {
         this.code = value;
+    }
+
+    /**
+     * Getter for nbHabitants.
+     *
+     * @return the value of nbHabitants.
+     */
+    public Integer getNbHabitants() {
+        return nbHabitants;
+    }
+
+    /**
+     * Setter for nbHabitants.
+     *
+     * @param value the new value for nbHabitants.
+     */
+    public void setNbHabitants(Integer value) {
+        this.nbHabitants = value;
+    }
+
+    /**
+     * Getter for villes.
+     *
+     * @return the value of villes.
+     */
+    public Set<Ville> getVilles() {
+        return villes;
+    }
+
+    /**
+     * Setter for villes.
+     *
+     * @param value the new value for villes.
+     */
+    public void setVilles(Set<Ville> value) {
+        this.villes = value;
     }
 }
