@@ -1,15 +1,23 @@
 package fr.diginamic.hello.restcontroleurs;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfWriter;
 import fr.diginamic.hello.dtos.DepartementDto;
+import fr.diginamic.hello.dtos.VilleDto;
 import fr.diginamic.hello.exceptions.DepartementNotFoundException;
 import fr.diginamic.hello.exceptions.InsertUpdateException;
+import fr.diginamic.hello.exceptions.VilleNotFoundException;
 import fr.diginamic.hello.services.DepartementService;
+import fr.diginamic.hello.services.VilleService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -19,6 +27,8 @@ public class DepartementControleur {
 
     @Autowired
     private DepartementService departementService;
+    @Autowired
+    private VilleService villeService;
 
     //  MÉTHODE GET POUR OBTENIR TOUT LES DEPARTEMENT
     @GetMapping
@@ -114,6 +124,13 @@ public class DepartementControleur {
 
 
         return ResponseEntity.ok("Département supprimée avec succès : " + departement.getNom());
+    }
+
+    @GetMapping(path = "/code/{code}/export-pdf")
+    public void exportVillesByDepartementCodeToPdf(@PathVariable String code, HttpServletResponse response) throws IOException, DocumentException, VilleNotFoundException, DepartementNotFoundException {
+
+        villeService.extractVillesByDepartementToPdf(code, response);
+
     }
 
 

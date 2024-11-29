@@ -1,18 +1,23 @@
 package fr.diginamic.hello.restcontroleurs;
 
+import com.itextpdf.text.*;
 import fr.diginamic.hello.dtos.DepartementDto;
 import fr.diginamic.hello.dtos.VilleDto;
-import fr.diginamic.hello.entites.Ville;
 import fr.diginamic.hello.exceptions.InsertUpdateException;
 import fr.diginamic.hello.exceptions.VilleNotFoundException;
 import fr.diginamic.hello.services.DepartementService;
 import fr.diginamic.hello.services.VilleService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -180,4 +185,26 @@ public class VilleControleur {
 
         return ResponseEntity.ok(villes);
     }
+
+    // METHODE QUI GENERE FICHIER CSV DES VILLES AVEC UNE POPULATION MIN
+    @GetMapping(path = "/pop-min/{min}/export-csv")
+    public ResponseEntity<byte[]> exportVillesByPopMinToCsv(@PathVariable int min, HttpServletResponse response) throws  VilleNotFoundException {
+
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "villes.csv");
+
+        byte[] csvBytes = villeService.extractVillesGreaterThanToCsv(min);
+
+        return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+
+
+    }
+
+
+
+
+
 }

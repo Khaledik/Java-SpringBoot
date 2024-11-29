@@ -1,18 +1,25 @@
 package fr.diginamic.hello.services;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfWriter;
+import fr.diginamic.hello.dtos.DepartementDto;
 import fr.diginamic.hello.dtos.VilleDto;
 import fr.diginamic.hello.entites.Ville;
+import fr.diginamic.hello.exceptions.DepartementNotFoundException;
 import fr.diginamic.hello.exceptions.InsertUpdateException;
 import fr.diginamic.hello.exceptions.VilleNotFoundException;
 import fr.diginamic.hello.mappers.VilleMapper;
 import fr.diginamic.hello.repositories.DepartementRepository;
 import fr.diginamic.hello.repositories.VilleRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -131,6 +138,79 @@ public class VilleService {
     }
 
     @Transactional
+    public byte[] extractVillesGreaterThanToCsv(int min) throws VilleNotFoundException {
+
+        List<VilleDto> villes = extractVillesGreaterThan(min);
+
+        if (villes.isEmpty()) {
+            throw new VilleNotFoundException("Aucune ville n’a une population supérieure à " + min + ".");
+        }
+
+        String CSV_HEADER = "NOM;NB_HABITANTS;CODE_DEPARTEMENT;DEPARTEMENT\n";
+
+        StringBuilder csvText = new StringBuilder();
+        csvText.append(CSV_HEADER);
+
+        for (VilleDto ville : villes) {
+            csvText.append(ville.getNom() + ";");
+            csvText.append(ville.getNbHabitants() + ";");
+            csvText.append(ville.getCodeDepartement() + ";");
+            csvText.append(ville.getNomDepartement() + "\n");
+        }
+
+        return csvText.toString().getBytes();
+    }
+
+    @Transactional
+    public void extractVillesByDepartementToPdf(String code, HttpServletResponse response) throws VilleNotFoundException, DepartementNotFoundException, IOException, DocumentException {
+
+        DepartementDto departementDto = departementService.extractDepartementByCode(code);
+
+        if (departementDto == null) {
+            throw new DepartementNotFoundException("Le département avec le code " + code + " n'a pas été trouvé.");
+        }
+
+        List<VilleDto> villesDtos = extractVillesByDepartementCode(code);
+
+        if (villesDtos.isEmpty()) {
+            throw new VilleNotFoundException("Aucune ville dans ce département n'a été trouvée.");
+        }
+
+
+        response.setHeader("Content-Disposition", "attachment;filename=\"villes-" + departementDto.getNom() + ".pdf\"");
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, response.getOutputStream());
+
+
+        document.open();
+
+        document.addTitle("Liste des villes : " + departementDto.getNom() + ".");
+
+        document.newPage();
+
+        BaseFont baseFont = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.EMBEDDED);
+        Phrase titre = new Phrase("Liste des villes : " + departementDto.getNom(), new Font(baseFont, 28, 1, new BaseColor(0, 51, 80)));
+        document.add(titre);
+
+        for (VilleDto ville : villesDtos) {
+            StringBuilder villeText = new StringBuilder();
+
+            villeText.append("\n\n" + ville.getNom()).append(" - " + ville.getNbHabitants() + " habitants ").append(" - " + ville.getNomDepartement()).append(" (" + ville.getCodeDepartement() + ")").append("\n");
+
+            Phrase ligneVille = new Phrase(villeText.toString(), new Font(baseFont, 13.0f, 1, new BaseColor(0, 51, 80)));
+
+            document.add(ligneVille);
+
+        }
+
+
+        document.close();
+
+        response.flushBuffer();
+
+    }
+
+    @Transactional
     public List<VilleDto> extractVillesBetween(int min, int max) throws VilleNotFoundException {
 
         List<Ville> villes = villeRepository.findAllByNbHabitantsBetween(min, max);
@@ -146,6 +226,26 @@ public class VilleService {
         }
 
         return villesDto;
+    }
+
+    @Transactional
+    public List<VilleDto> extractVillesByDepartementCode(String codeDep) throws VilleNotFoundException {
+
+        List<Ville> villes = villeRepository.findAllByDepartementCode(codeDep);
+
+        if (villes.isEmpty()) {
+            throw new VilleNotFoundException("Aucune ville n’a une été trouvée dans le département : " + codeDep + ".");
+        }
+
+        List<VilleDto> villesDto = new ArrayList<>();
+
+        for (Ville ville : villes) {
+            villesDto.add(villeMapper.toDto(ville));
+        }
+
+        return villesDto;
+
+
     }
 
     @Transactional

@@ -22,6 +22,9 @@ public interface VilleRepository extends JpaRepository<Ville, Integer> {
     // Recherche de toutes les villes avec une population entre deux valeurs
     List<Ville> findAllByNbHabitantsBetween(int min, int max);
 
+    // Recherche de toutes les villes d’un département avec son code
+    List<Ville> findAllByDepartementCode(String code);
+
     // Recherche de toutes les villes d’un département avec une population supérieure à min
     @Query("SELECT v FROM Ville v WHERE v.departement.code = :codeDep AND v.nbHabitants > :min")
     List<Ville> findAllByDepartementIdAndNbHabitantsGreaterThan(@Param("codeDep") String codeDep, @Param("min") int min);
