@@ -13,6 +13,9 @@ import fr.diginamic.hello.services.VilleService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -126,10 +129,27 @@ public class DepartementControleur {
         return ResponseEntity.ok("Département supprimée avec succès : " + departement.getNom());
     }
 
+    // METHODE QUI GENERE UN FICHIER PDF CONTENANT TOUTES LES VILLES D'UN DÉPARTEMENT
     @GetMapping(path = "/code/{code}/export-pdf")
     public void exportVillesByDepartementCodeToPdf(@PathVariable String code, HttpServletResponse response) throws IOException, DocumentException, VilleNotFoundException, DepartementNotFoundException {
 
         villeService.extractVillesByDepartementToPdf(code, response);
+
+    }
+
+    // METHODE QUI GENERE UN FICHIER CSV CONTENANT TOUT LES DÉPARTEMENTS
+    @GetMapping(path = "/export-csv")
+    public ResponseEntity<byte[]> exportToCsv(HttpServletResponse response) throws DepartementNotFoundException {
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "all-departements.csv");
+
+        byte[] csvBytes = departementService.exportToCsv();
+
+        return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+
 
     }
 

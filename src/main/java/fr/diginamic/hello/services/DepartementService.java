@@ -1,9 +1,11 @@
 package fr.diginamic.hello.services;
 
 import fr.diginamic.hello.dtos.DepartementDto;
+import fr.diginamic.hello.dtos.VilleDto;
 import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.exceptions.DepartementNotFoundException;
 import fr.diginamic.hello.exceptions.InsertUpdateException;
+import fr.diginamic.hello.exceptions.VilleNotFoundException;
 import fr.diginamic.hello.mappers.DepartementMapper;
 import fr.diginamic.hello.repositories.DepartementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,5 +138,29 @@ public class DepartementService {
 
         return departementDto;
     }
+
+
+    @Transactional
+    public byte[] exportToCsv() throws DepartementNotFoundException {
+
+        List<DepartementDto> departementDtos = extractDepartements();
+
+        if (departementDtos.isEmpty()) {
+            throw new DepartementNotFoundException("Aucun départements n’a été trouvée.");
+        }
+
+        String CSV_HEADER = "CODE;NOM\n";
+
+        StringBuilder csvText = new StringBuilder();
+        csvText.append(CSV_HEADER);
+
+        for (DepartementDto departement : departementDtos) {
+            csvText.append(departement.getCode() + ";");
+            csvText.append(departement.getNom() + "\n");
+        }
+
+        return csvText.toString().getBytes();
+    }
+
 
 }

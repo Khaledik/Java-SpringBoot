@@ -186,7 +186,26 @@ public class VilleControleur {
         return ResponseEntity.ok(villes);
     }
 
-    // METHODE QUI GENERE FICHIER CSV DES VILLES AVEC UNE POPULATION MIN
+
+    // METHODE QUI GENERE UN FICHIER CSV CONTENANT TOUTES LES VILLES
+    @GetMapping(path = "/export-csv")
+    public ResponseEntity<byte[]> exportToCsv(HttpServletResponse response) throws  VilleNotFoundException {
+
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "all-villes.csv");
+
+        byte[] csvBytes = villeService.exportToCsv();
+
+        return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+
+
+    }
+
+
+    // METHODE QUI GENERE UN FICHIER CSV DES VILLES AVEC UNE POPULATION MIN
     @GetMapping(path = "/pop-min/{min}/export-csv")
     public ResponseEntity<byte[]> exportVillesByPopMinToCsv(@PathVariable int min, HttpServletResponse response) throws  VilleNotFoundException {
 

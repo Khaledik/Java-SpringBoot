@@ -138,6 +138,32 @@ public class VilleService {
     }
 
     @Transactional
+    public byte[] exportToCsv() throws VilleNotFoundException {
+
+        List<VilleDto> villes = extractVilles();
+
+        if (villes.isEmpty()) {
+            throw new VilleNotFoundException("Aucune ville n’a éte trouvée.");
+        }
+
+        String CSV_HEADER = "NOM;NB_HABITANTS;CODE_DEPARTEMENT;DEPARTEMENT\n";
+
+        StringBuilder csvText = new StringBuilder();
+        csvText.append(CSV_HEADER);
+
+        for (VilleDto ville : villes) {
+            csvText.append(ville.getNom() + ";");
+            csvText.append(ville.getNbHabitants() + ";");
+            csvText.append(ville.getCodeDepartement() + ";");
+            csvText.append(ville.getNomDepartement() + "\n");
+        }
+
+        return csvText.toString().getBytes();
+    }
+
+
+
+    @Transactional
     public byte[] extractVillesGreaterThanToCsv(int min) throws VilleNotFoundException {
 
         List<VilleDto> villes = extractVillesGreaterThan(min);
