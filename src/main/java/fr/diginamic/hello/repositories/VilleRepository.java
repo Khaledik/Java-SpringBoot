@@ -33,5 +33,6 @@ public interface VilleRepository extends JpaRepository<Ville, Integer> {
     @Query("SELECT v FROM Ville v WHERE v.departement.code = :codeDep ORDER BY v.nbHabitants DESC")
     List<Ville> findTopNVillesByDepartementId(@Param("codeDep") String codeDep, Pageable pageable);
 
+    Ville findByNomAndDepartementCode(String nom, String codeDep);
 
 }

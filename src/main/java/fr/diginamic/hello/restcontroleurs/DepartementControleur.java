@@ -1,6 +1,8 @@
 package fr.diginamic.hello.restcontroleurs;
 
 import fr.diginamic.hello.dtos.DepartementDto;
+import fr.diginamic.hello.exceptions.DepartementNotFoundException;
+import fr.diginamic.hello.exceptions.InsertUpdateException;
 import fr.diginamic.hello.services.DepartementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/departements")
@@ -53,13 +54,10 @@ public class DepartementControleur {
 
     //  MÉTHODE GET POUR OBTENIR UN DEPARTEMENT PAR SON CODE
     @GetMapping(path = "/code/{code}")
-    public ResponseEntity<DepartementDto> getDepartementByCode(@PathVariable String code) {
+    public ResponseEntity<DepartementDto> getDepartementByCode(@PathVariable String code) throws DepartementNotFoundException {
 
         DepartementDto departement = departementService.extractDepartementByCode(code);
 
-        if (departement == null) {
-            return ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity.ok(departement);
     }
@@ -67,7 +65,7 @@ public class DepartementControleur {
 
     //  MÉTHODE POST POUR AJOUTER UN DÉPARTEMENT
     @PostMapping(path = "/add")
-    public ResponseEntity<String> addDepartement(@Valid @RequestBody DepartementDto departement, BindingResult bindingResult) {
+    public ResponseEntity<String> addDepartement(@Valid @RequestBody DepartementDto departement, BindingResult bindingResult) throws InsertUpdateException {
 
         if (departement == null) {
             return ResponseEntity.badRequest().build();
@@ -84,7 +82,7 @@ public class DepartementControleur {
 
     //  MÉTHODE PUT POUR EDITER UN DEPARTEMENT
     @PutMapping(path = "/edit")
-    public ResponseEntity<String> updateDepartement(@Valid @RequestBody DepartementDto departement, BindingResult bindingResult) {
+    public ResponseEntity<String> updateDepartement(@Valid @RequestBody DepartementDto departement, BindingResult bindingResult) throws InsertUpdateException {
 
         if (departement == null) {
             return ResponseEntity.badRequest().build();
@@ -106,7 +104,7 @@ public class DepartementControleur {
 
     //  MÉTHODE DELETE POUR SUPPRIMER UN DEPARTEMENT
     @DeleteMapping(path = "/remove/{id}")
-    public ResponseEntity<String> deleteVille(@PathVariable int id) {
+    public ResponseEntity<String> deleteDepartement(@PathVariable int id) {
 
         DepartementDto departement = departementService.supprimerDepartement(id);
 

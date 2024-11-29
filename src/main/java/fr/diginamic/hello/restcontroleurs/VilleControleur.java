@@ -2,22 +2,18 @@ package fr.diginamic.hello.restcontroleurs;
 
 import fr.diginamic.hello.dtos.DepartementDto;
 import fr.diginamic.hello.dtos.VilleDto;
-import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.Ville;
+import fr.diginamic.hello.exceptions.InsertUpdateException;
+import fr.diginamic.hello.exceptions.VilleNotFoundException;
 import fr.diginamic.hello.services.DepartementService;
 import fr.diginamic.hello.services.VilleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Scanner;
 
 @RestController
 @RequestMapping("/api/villes")
@@ -32,33 +28,26 @@ public class VilleControleur {
 
     //  MÉTHODE GET POUR OBTENIR TOUTES LES VILLES
     @GetMapping
-    public List<VilleDto> getAllVilles() {
+    public List<VilleDto> getAllVilles() throws VilleNotFoundException {
         return villeService.extractVilles();
     }
 
 
     //  MÉTHODE GET POUR OBTENIR UNE VILLE PAR SON ID
     @GetMapping(path = "/id/{id}")
-    public ResponseEntity<VilleDto> getVilleById(@PathVariable int id) {
+    public ResponseEntity<VilleDto> getVilleById(@PathVariable int id) throws VilleNotFoundException {
 
         VilleDto ville = villeService.extractVilleById(id);
 
-        if (ville == null) {
-            return ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity.ok(ville);
     }
 
     //  MÉTHODE GET POUR OBTENIR UNE VILLE PAR SON NOM
     @GetMapping(path = "/name/{name}")
-    public ResponseEntity<VilleDto> getVilleByName(@PathVariable String name) {
+    public ResponseEntity<VilleDto> getVilleByName(@PathVariable String name) throws VilleNotFoundException {
 
         VilleDto ville = villeService.extractVilleByName(name);
-
-        if (ville == null) {
-            return ResponseEntity.notFound().build();
-        }
 
 
         return ResponseEntity.ok(ville);
@@ -67,7 +56,7 @@ public class VilleControleur {
 
     //  MÉTHODE POST POUR AJOUTER UNE VILLE
     @PostMapping(path = "/add")
-    public ResponseEntity<String> addVille(@Valid @RequestBody VilleDto ville, BindingResult bindingResult) {
+    public ResponseEntity<String> addVille(@Valid @RequestBody VilleDto ville, BindingResult bindingResult) throws InsertUpdateException {
 
         if (ville == null) {
             return ResponseEntity.badRequest().build();
@@ -84,7 +73,7 @@ public class VilleControleur {
 
     //  MÉTHODE PUT POUR EDITER UNE VILLE
     @PutMapping(path = "/edit/{id}")
-    public ResponseEntity<String> updateVille(@Valid @PathVariable int id, @RequestBody VilleDto ville, BindingResult bindingResult) {
+    public ResponseEntity<String> updateVille(@Valid @PathVariable int id, @RequestBody VilleDto ville, BindingResult bindingResult) throws InsertUpdateException {
 
         if (ville == null) {
             return ResponseEntity.badRequest().build();
@@ -123,13 +112,10 @@ public class VilleControleur {
 
     // Recherche de toutes les villes dont le nom commence par une chaine de caractères données
     @GetMapping(path = "/start-with/{nom}")
-    public ResponseEntity<Object> getVillesStartWith(@PathVariable String nom) {
+    public ResponseEntity<Object> getVillesStartWith(@PathVariable String nom) throws VilleNotFoundException {
 
         List<VilleDto> villes = villeService.extractVillesStartWith(nom);
 
-        if (villes.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity.ok(villes);
 
@@ -137,13 +123,10 @@ public class VilleControleur {
 
     //  Recherche de toutes les villes dont la population est supérieure à min (paramètre de type int)
     @GetMapping(path = "/pop-min")
-    public ResponseEntity<Object> getVillesGreaterThan(@RequestParam int min) {
+    public ResponseEntity<Object> getVillesGreaterThan(@RequestParam int min) throws VilleNotFoundException {
 
         List<VilleDto> villes = villeService.extractVillesGreaterThan(min);
 
-        if (villes.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity.ok(villes);
 
@@ -151,14 +134,11 @@ public class VilleControleur {
 
     //  Recherche de toutes les villes dont la population est supérieure à min et inférieure à max.
     @GetMapping(path = "/pop-min-max")
-    public ResponseEntity<Object> getVillesBetween(@RequestParam int min, @RequestParam int max) {
+    public ResponseEntity<Object> getVillesBetween(@RequestParam int min, @RequestParam int max) throws VilleNotFoundException {
 
 
         List<VilleDto> villes = villeService.extractVillesBetween(min, max);
 
-        if (villes.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity.ok(villes);
 
@@ -166,14 +146,10 @@ public class VilleControleur {
 
     //  Recherche de toutes les villes d’un département dont la population est supérieure à min (paramètre de type int)
     @GetMapping(path = "/departement/{code}/pop-dep-min")
-    public ResponseEntity<Object> getVillesByDepartementGreaterThan(@PathVariable String code, @RequestParam int min) {
+    public ResponseEntity<Object> getVillesByDepartementGreaterThan(@PathVariable String code, @RequestParam int min) throws VilleNotFoundException {
 
         DepartementDto departement = departementService.extractDepartementByCode(code);
         List<VilleDto> villes = villeService.extractVillesByDepartementGreaterThan(departement.getCode(), min);
-
-        if (departement == null || villes.isEmpty()) {
-            ResponseEntity.notFound().build();
-        }
 
 
         return ResponseEntity.ok(villes);
@@ -182,14 +158,11 @@ public class VilleControleur {
 
     //  Recherche de toutes les villes d’un département dont la population est supérieure à min et inférieure à max.
     @GetMapping(path = "/departement/{code}/pop-dep-min-max")
-    public ResponseEntity<Object> getVillesByDepartementBetween(@PathVariable String code, @RequestParam int min, @RequestParam int max) {
+    public ResponseEntity<Object> getVillesByDepartementBetween(@PathVariable String code, @RequestParam int min, @RequestParam int max) throws VilleNotFoundException {
 
         DepartementDto departement = departementService.extractDepartementByCode(code);
         List<VilleDto> villes = villeService.extractVillesByDepartementBetween(departement.getCode(), min, max);
 
-        if (departement == null || villes.isEmpty()) {
-            ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity.ok(villes);
 
@@ -197,16 +170,12 @@ public class VilleControleur {
 
     //  Recherche des n villes les plus peuplées d’un département donné (n est aussi un paramètre)
     @GetMapping(path = "/departement/{code}/top-villes")
-    public ResponseEntity<Object> getTopNVillesByDepartement(@PathVariable String code, @RequestParam int n) {
+    public ResponseEntity<Object> getTopNVillesByDepartement(@PathVariable String code, @RequestParam int n) throws VilleNotFoundException {
 
         DepartementDto departement = departementService.extractDepartementByCode(code);
 
+
         List<VilleDto> villes = villeService.extractTopNVillesByDepartement(departement.getCode(), n);
-
-
-        if (departement == null || villes.isEmpty()) {
-            ResponseEntity.notFound().build();
-        }
 
 
         return ResponseEntity.ok(villes);

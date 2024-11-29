@@ -8,12 +8,17 @@ import org.springframework.stereotype.Component;
 public class DepartementMapper {
 
     public DepartementDto toDto(Departement departement) {
+
+        if (departement == null) {
+            throw new IllegalArgumentException("Le département ne peut pas être null.");
+        }
+
         DepartementDto dto = new DepartementDto();
         dto.setNom(departement.getNom());
         dto.setCode(departement.getCode());
 
         if (departement.getNbHabitants() != null) {
-        dto.setNbHabitants(departement.getNbHabitants());
+            dto.setNbHabitants(departement.getNbHabitants());
         }
 
         return dto;
@@ -25,6 +30,7 @@ public class DepartementMapper {
         departement.setNom(departementDto.getNom());
         departement.setCode(departementDto.getCode());
         departement.setNbHabitants(departementDto.getNbHabitants());
+
 
         return departement;
     }

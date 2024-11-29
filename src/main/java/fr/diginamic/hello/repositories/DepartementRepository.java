@@ -15,4 +15,6 @@ public interface DepartementRepository extends JpaRepository<Departement, Intege
 
 
     Departement findByCode(String name);
+
+    Integer findNbHabitantsByCode(String code);
 }
