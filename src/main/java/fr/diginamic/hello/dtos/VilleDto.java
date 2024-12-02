@@ -1,6 +1,7 @@
 package fr.diginamic.hello.dtos;
 
 import fr.diginamic.hello.entites.Departement;
+import fr.diginamic.hello.entites.Ville;
 
 public class VilleDto {
 
@@ -10,6 +11,15 @@ public class VilleDto {
     private String nomDepartement;
 
     public VilleDto() {}
+
+    public VilleDto(String nom, int nbHabitants, String codeDepartement, String nomDepartement) {
+        this.nom = nom;
+        this.nbHabitants = nbHabitants;
+        this.codeDepartement = codeDepartement;
+        this.nomDepartement = nomDepartement;
+    }
+
+
 
     /**
      * Getter for nom.
