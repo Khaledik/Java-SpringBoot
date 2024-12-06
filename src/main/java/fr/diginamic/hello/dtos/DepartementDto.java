@@ -2,12 +2,37 @@ package fr.diginamic.hello.dtos;
 
 public class DepartementDto {
 
+    private int id;
     private String code;
     private String nom;
     private int nbHabitants;
 
-    public DepartementDto() {
 
+    public DepartementDto() {
+    }
+
+    public DepartementDto(String code, String nom, int nbHabitants) {
+        this.code = code;
+        this.nom = nom;
+        this.nbHabitants = nbHabitants;
+    }
+
+    /**
+     * Getter for id.
+     *
+     * @return the value of id.
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Setter for id.
+     *
+     * @param value the new value for id.
+     */
+    public void setId(int value) {
+        this.id = value;
     }
 
     /**

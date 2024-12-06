@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/img/flag-for-flag-france.svg">
+
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Acceuil</title>
+</head>
+<body>
+
+<div th:replace="~{header.html}"></div>
+
+<div class="  flex flex-col justify-center gap-10 py-40">
+
+    <div class="flex  items-center justify-center">
+        <div class="relative flex w-full max-w-[48rem] flex-row rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+            <div class="relative m-0 w-2/5 shrink-0 overflow-hidden rounded-xl rounded-r-none bg-white bg-clip-border text-gray-700">
+                <img
+                        src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        alt="image"
+                        class="h-full w-full object-cover"
+                />
+            </div>
+            <div class="p-6">
+                <h6 class="mb-4 block font-sans text-base font-semibold uppercase leading-relaxed tracking-normal text-blue-500 antialiased">
+                    Villes
+                </h6>
+                <h4 class="mb-2 block font-sans text-2xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
+                    Liste des Villes de France
+                </h4>
+                <p class="mb-8 block font-sans text-base font-normal leading-relaxed text-gray-700 antialiased">
+                    Accéder aux villes de france afin de consulter leurs populations, code, et départements.
+                </p>
+                <a  th:if="${authentification != null}" class="inline-block" href="/villes">
+                    <button
+                            class="flex select-none items-center gap-2 rounded-lg py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-blue-500 transition-all hover:bg-blue-500/10 active:bg-blue-500/30 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                            type="button"
+                    >
+                        Voir villes
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="2"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                                class="h-4 w-4"
+                        >
+                            <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                            ></path>
+                        </svg>
+                    </button>
+                </a>
+                <a  th:if="${authentification == null}" class="inline-block" href="/login">
+                    <button
+                            class="flex select-none items-center gap-2 rounded-lg py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-blue-500 transition-all hover:bg-blue-500/10 active:bg-blue-500/30 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                            type="button"
+                    >
+                        Se-connecter
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="2"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                                class="h-4 w-4"
+                        >
+                            <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                            ></path>
+                        </svg>
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="flex  items-center justify-center">
+        <div class="relative flex w-full max-w-[48rem] flex-row rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+            <div class="relative m-0 w-2/5 shrink-0 overflow-hidden rounded-xl rounded-r-none bg-white bg-clip-border text-gray-700">
+                <img
+                        src="https://plus.unsplash.com/premium_photo-1688479428007-658f1abb8c33?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        alt="image"
+                        class="h-full w-full object-cover"
+                />
+            </div>
+            <div class="p-6">
+                <h6 class="mb-4 block font-sans text-base font-semibold uppercase leading-relaxed tracking-normal text-blue-500 antialiased">
+                    Départements
+                </h6>
+                <h4 class="mb-2 block font-sans text-2xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
+                    Liste des Départements de France
+                </h4>
+                <p class="mb-8 block font-sans text-base font-normal leading-relaxed text-gray-700 antialiased">
+                    Accéder aux département de france afin de consulter leurs code et leurs nom.
+                </p>
+                <a  th:if="${authentification != null}" class="inline-block" href="/departements">
+                    <button
+                            class="flex select-none items-center gap-2 rounded-lg py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-blue-500 transition-all hover:bg-blue-500/10 active:bg-blue-500/30 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                            type="button"
+                    >
+                        Voir départements
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="2"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                                class="h-4 w-4"
+                        >
+                            <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                            ></path>
+                        </svg>
+                    </button>
+                </a>
+                <a  th:if="${authentification == null}" class="inline-block" href="/login">
+                    <button
+                            class="flex select-none items-center gap-2 rounded-lg py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-blue-500 transition-all hover:bg-blue-500/10 active:bg-blue-500/30 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                            type="button"
+                    >
+                        Se-connecter
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="2"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                                class="h-4 w-4"
+                        >
+                            <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                            ></path>
+                        </svg>
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{footer.html}"></div>
+
+</body>
+</html>

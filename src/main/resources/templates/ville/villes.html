@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:tr="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/img/flag-for-flag-france.svg">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Liste des Villes</title>
+</head>
+<body>
+
+<div th:replace="~{header.html}"></div>
+
+<div class="text-gray-900 bg-gray-100 h-screen">
+
+    <div class="p-4 flex">
+        <h1 class="font-bold text-3xl">
+            Liste des villes
+        </h1>
+    </div>
+
+    <div class="px-3 py-4 flex justify-center">
+
+        <table class=" w-full text-md bg-white shadow-md rounded mb-4">
+
+            <tbody>
+
+            <tr class="border-b">
+                <th class="text-left p-3 px-5">Nom</th>
+                <th class="text-left p-3 px-5">Population</th>
+                <th class="text-left p-3 px-5">Département</th>
+                <th class="text-left p-3 px-5 flex justify-end">Actions</th>
+                <th></th>
+            </tr>
+
+            <tr th:each="ville : ${villes}" class="border-b hover:bg-blue-100 bg-gray-100">
+                <td class="p-3 px-5" th:text="${ville.nom}">Paris</td>
+                <td class="p-3 px-5" th:text="${ville.nbHabitants}">200000000</td>
+                <td class="p-3 px-5" th:text="${ville.departement.nom + ' (' + ville.departement.code + ')'}">Paris (75)
+                </td>
+
+
+                <td class="p-3 px-5 flex justify-end">
+                    <form th:action="@{/remove-ville/{id}(id=${ville.id})}" method="post"
+                          onsubmit="return confirm('Voulez-vous vraiment supprimer cette ville ?');">
+                        <button type="submit"
+                                class="text-sm bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline">
+                            Supprimer
+                        </button>
+                    </form>
+                </td>
+
+            </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+</body>
+</html>

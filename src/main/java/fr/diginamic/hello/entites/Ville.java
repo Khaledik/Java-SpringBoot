@@ -1,14 +1,11 @@
 package fr.diginamic.hello.entites;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.hibernate.validator.constraints.Range;
 
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "villes")
@@ -41,7 +38,8 @@ public class Ville {
         this.departement = departement;
     }
 
-    public Ville() {}
+    public Ville() {
+    }
 
 
     @Override

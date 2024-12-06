@@ -1,6 +1,7 @@
 package fr.diginamic.hello.services;
 
-import fr.diginamic.hello.dtos.VilleDto;
+import fr.diginamic.hello.entites.Departement;
+import fr.diginamic.hello.entites.Ville;
 import fr.diginamic.hello.exceptions.InsertUpdateException;
 import fr.diginamic.hello.exceptions.VilleNotFoundException;
 import fr.diginamic.hello.repositories.VilleRepository;
@@ -29,13 +30,13 @@ public class VilleServiceTest {
 
     @Test
     void extractAllVilles() {
-        Iterable<VilleDto> villes = villeService.extractVilles();
+        Iterable<Ville> villes = villeService.extractVilles();
         assertTrue(villes.iterator().hasNext());
     }
 
     @Test
     void extractVilleById() {
-        VilleDto ville = villeService.extractVilleById(14321);
+        Ville ville = villeService.extractVilleById(14321);
         assertNotNull(ville);
     }
 
@@ -44,7 +45,7 @@ public class VilleServiceTest {
         Mockito.when(villeRepository.findAll()).thenReturn(List.of());
 
         try {
-            VilleDto ville = villeService.extractVilleById(14321);
+            Ville ville = villeService.extractVilleById(14321);
             assertNotNull(ville);
             assertEquals(ville.getNom(), "Nantiat");
         } catch (Exception e) {
@@ -54,49 +55,49 @@ public class VilleServiceTest {
 
     @Test
     void extractVilleByName() {
-        VilleDto ville = villeService.extractVilleByName("Paris");
+        Ville ville = villeService.extractVilleByName("Paris");
         assertNotNull(ville);
     }
 
     @Test
     void extractVillesStartWith() {
-        Iterable<VilleDto> villes = villeService.extractVillesStartWith("Do");
+        Iterable<Ville> villes = villeService.extractVillesStartWith("Do");
         assertTrue(villes.iterator().hasNext());
     }
 
     @Test
     void extractVillesGreaterThan() {
-        Iterable<VilleDto> villes = villeService.extractVillesGreaterThan(500);
+        Iterable<Ville> villes = villeService.extractVillesGreaterThan(500);
         assertTrue(villes.iterator().hasNext());
     }
 
     @Test
     void extractVillesBetween() {
-        Iterable<VilleDto> villes = villeService.extractVillesBetween(10000, 100000);
+        Iterable<Ville> villes = villeService.extractVillesBetween(10000, 100000);
         assertTrue(villes.iterator().hasNext());
     }
 
     @Test
     void extractVillesByDepartementCode() {
-        Iterable<VilleDto> villes = villeService.extractVillesByDepartementCode("30");
+        Iterable<Ville> villes = villeService.extractVillesByDepartementCode("30");
         assertTrue(villes.iterator().hasNext());
     }
 
     @Test
     void extractVillesByDepartementGreaterThan() {
-        Iterable<VilleDto> villes = villeService.extractVillesByDepartementGreaterThan("30", 500);
+        Iterable<Ville> villes = villeService.extractVillesByDepartementGreaterThan("30", 500);
         assertTrue(villes.iterator().hasNext());
     }
 
     @Test
     void extractVillesByDepartementBetween() {
-        Iterable<VilleDto> villes = villeService.extractVillesByDepartementBetween("34", 10000, 100000);
+        Iterable<Ville> villes = villeService.extractVillesByDepartementBetween("34", 10000, 100000);
         assertTrue(villes.iterator().hasNext());
     }
 
     @Test
     void extractTopNVillesByDepartement() {
-        Iterable<VilleDto> villes = villeService.extractTopNVillesByDepartement("34", 3);
+        Iterable<Ville> villes = villeService.extractTopNVillesByDepartement("34", 3);
         assertTrue(villes.iterator().hasNext());
     }
 
@@ -108,10 +109,11 @@ public class VilleServiceTest {
 
     @Test
     void villeAlreadyExistInDepartment() {
-        VilleDto ville = new VilleDto("Paris", 10, "75", "Paris");
+        Departement departement = new Departement("75", "Paris");
+        Ville ville = new Ville("Paris", 10, departement);
 
         try {
-        villeService.insertVille(ville);
+            villeService.insertVille(ville);
         } catch (Exception e) {
             assertThatExceptionOfType(InsertUpdateException.class);
             assertEquals(e.getClass(), "Le nom de la ville doit être unique pour un département donné.");

@@ -1,10 +1,11 @@
 package fr.diginamic.hello.restcontroleurs;
 
-import com.itextpdf.text.*;
-import fr.diginamic.hello.dtos.DepartementDto;
 import fr.diginamic.hello.dtos.VilleDto;
+import fr.diginamic.hello.entites.Departement;
+import fr.diginamic.hello.entites.Ville;
 import fr.diginamic.hello.exceptions.InsertUpdateException;
 import fr.diginamic.hello.exceptions.VilleNotFoundException;
+import fr.diginamic.hello.mappers.VilleMapper;
 import fr.diginamic.hello.services.DepartementService;
 import fr.diginamic.hello.services.VilleService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -31,10 +31,13 @@ public class VilleControleur {
     @Autowired
     private DepartementService departementService;
 
+    @Autowired
+    private VilleMapper villeMapper;
+
     //  MÉTHODE GET POUR OBTENIR TOUTES LES VILLES
     @GetMapping
     public List<VilleDto> getAllVilles() throws VilleNotFoundException {
-        return villeService.extractVilles();
+        return villeMapper.toDto(villeService.extractVilles());
     }
 
 
@@ -42,7 +45,7 @@ public class VilleControleur {
     @GetMapping(path = "/id/{id}")
     public ResponseEntity<VilleDto> getVilleById(@PathVariable int id) throws VilleNotFoundException {
 
-        VilleDto ville = villeService.extractVilleById(id);
+        VilleDto ville = villeMapper.toDto(villeService.extractVilleById(id));
 
 
         return ResponseEntity.ok(ville);
@@ -52,7 +55,7 @@ public class VilleControleur {
     @GetMapping(path = "/name/{name}")
     public ResponseEntity<VilleDto> getVilleByName(@PathVariable String name) throws VilleNotFoundException {
 
-        VilleDto ville = villeService.extractVilleByName(name);
+        VilleDto ville = villeMapper.toDto(villeService.extractVilleByName(name));
 
 
         return ResponseEntity.ok(ville);
@@ -71,7 +74,7 @@ public class VilleControleur {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        villeService.insertVille(ville);
+        villeService.insertVille(villeMapper.toBean(ville));
         return ResponseEntity.ok("Ville insérée avec succès : " + ville.getNom());
     }
 
@@ -88,7 +91,7 @@ public class VilleControleur {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        VilleDto villeAModif = villeService.modifierVille(id, ville);
+        Ville villeAModif = villeService.modifierVille(id, villeMapper.toBean(ville));
 
         if (villeAModif == null) {
             return ResponseEntity.notFound().build();
@@ -103,7 +106,7 @@ public class VilleControleur {
     @DeleteMapping(path = "/remove/{id}")
     public ResponseEntity<String> deleteVille(@PathVariable int id) {
 
-        VilleDto ville = villeService.supprimerVille(id);
+        Ville ville = villeService.supprimerVille(id);
 
         if (ville == null) {
             return ResponseEntity.notFound().build();
@@ -119,7 +122,7 @@ public class VilleControleur {
     @GetMapping(path = "/start-with/{nom}")
     public ResponseEntity<Object> getVillesStartWith(@PathVariable String nom) throws VilleNotFoundException {
 
-        List<VilleDto> villes = villeService.extractVillesStartWith(nom);
+        List<VilleDto> villes = villeMapper.toDto(villeService.extractVillesStartWith(nom));
 
 
         return ResponseEntity.ok(villes);
@@ -130,7 +133,7 @@ public class VilleControleur {
     @GetMapping(path = "/pop-min")
     public ResponseEntity<Object> getVillesGreaterThan(@RequestParam int min) throws VilleNotFoundException {
 
-        List<VilleDto> villes = villeService.extractVillesGreaterThan(min);
+        List<VilleDto> villes = villeMapper.toDto(villeService.extractVillesGreaterThan(min));
 
 
         return ResponseEntity.ok(villes);
@@ -142,7 +145,7 @@ public class VilleControleur {
     public ResponseEntity<Object> getVillesBetween(@RequestParam int min, @RequestParam int max) throws VilleNotFoundException {
 
 
-        List<VilleDto> villes = villeService.extractVillesBetween(min, max);
+        List<VilleDto> villes = villeMapper.toDto(villeService.extractVillesBetween(min, max));
 
 
         return ResponseEntity.ok(villes);
@@ -153,8 +156,8 @@ public class VilleControleur {
     @GetMapping(path = "/departement/{code}/pop-dep-min")
     public ResponseEntity<Object> getVillesByDepartementGreaterThan(@PathVariable String code, @RequestParam int min) throws VilleNotFoundException {
 
-        DepartementDto departement = departementService.extractDepartementByCode(code);
-        List<VilleDto> villes = villeService.extractVillesByDepartementGreaterThan(departement.getCode(), min);
+        Departement departement = departementService.extractDepartementByCode(code);
+        List<VilleDto> villes = villeMapper.toDto(villeService.extractVillesByDepartementGreaterThan(departement.getCode(), min));
 
 
         return ResponseEntity.ok(villes);
@@ -165,8 +168,8 @@ public class VilleControleur {
     @GetMapping(path = "/departement/{code}/pop-dep-min-max")
     public ResponseEntity<Object> getVillesByDepartementBetween(@PathVariable String code, @RequestParam int min, @RequestParam int max) throws VilleNotFoundException {
 
-        DepartementDto departement = departementService.extractDepartementByCode(code);
-        List<VilleDto> villes = villeService.extractVillesByDepartementBetween(departement.getCode(), min, max);
+        Departement departement = departementService.extractDepartementByCode(code);
+        List<VilleDto> villes = villeMapper.toDto(villeService.extractVillesByDepartementBetween(departement.getCode(), min, max));
 
 
         return ResponseEntity.ok(villes);
@@ -177,10 +180,10 @@ public class VilleControleur {
     @GetMapping(path = "/departement/{code}/top-villes")
     public ResponseEntity<Object> getTopNVillesByDepartement(@PathVariable String code, @RequestParam int n) throws VilleNotFoundException {
 
-        DepartementDto departement = departementService.extractDepartementByCode(code);
+        Departement departement = departementService.extractDepartementByCode(code);
 
 
-        List<VilleDto> villes = villeService.extractTopNVillesByDepartement(departement.getCode(), n);
+        List<VilleDto> villes = villeMapper.toDto(villeService.extractTopNVillesByDepartement(departement.getCode(), n));
 
 
         return ResponseEntity.ok(villes);
@@ -189,8 +192,7 @@ public class VilleControleur {
 
     // METHODE QUI GENERE UN FICHIER CSV CONTENANT TOUTES LES VILLES
     @GetMapping(path = "/export-csv")
-    public ResponseEntity<byte[]> exportToCsv(HttpServletResponse response) throws  VilleNotFoundException {
-
+    public ResponseEntity<byte[]> exportToCsv(HttpServletResponse response) throws VilleNotFoundException {
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -207,8 +209,7 @@ public class VilleControleur {
 
     // METHODE QUI GENERE UN FICHIER CSV DES VILLES AVEC UNE POPULATION MIN
     @GetMapping(path = "/pop-min/{min}/export-csv")
-    public ResponseEntity<byte[]> exportVillesByPopMinToCsv(@PathVariable int min, HttpServletResponse response) throws  VilleNotFoundException {
-
+    public ResponseEntity<byte[]> exportVillesByPopMinToCsv(@PathVariable int min, HttpServletResponse response) throws VilleNotFoundException {
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -221,9 +222,6 @@ public class VilleControleur {
 
 
     }
-
-
-
 
 
 }

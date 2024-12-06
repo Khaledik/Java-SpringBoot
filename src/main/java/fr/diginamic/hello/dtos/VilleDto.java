@@ -1,16 +1,16 @@
 package fr.diginamic.hello.dtos;
 
-import fr.diginamic.hello.entites.Departement;
-import fr.diginamic.hello.entites.Ville;
 
 public class VilleDto {
 
+    private int id;
     private String nom;
     private int nbHabitants;
     private String codeDepartement;
     private String nomDepartement;
 
-    public VilleDto() {}
+    public VilleDto() {
+    }
 
     public VilleDto(String nom, int nbHabitants, String codeDepartement, String nomDepartement) {
         this.nom = nom;
@@ -20,6 +20,23 @@ public class VilleDto {
     }
 
 
+    /**
+     * Getter for id.
+     *
+     * @return the value of id.
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Setter for id.
+     *
+     * @param value the new value for id.
+     */
+    public void setId(int value) {
+        this.id = value;
+    }
 
     /**
      * Getter for nom.

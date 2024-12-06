@@ -1,13 +1,12 @@
 package fr.diginamic.hello.restcontroleurs;
 
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfWriter;
 import fr.diginamic.hello.dtos.DepartementDto;
-import fr.diginamic.hello.dtos.VilleDto;
+import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.exceptions.DepartementNotFoundException;
 import fr.diginamic.hello.exceptions.InsertUpdateException;
 import fr.diginamic.hello.exceptions.VilleNotFoundException;
+import fr.diginamic.hello.mappers.DepartementMapper;
 import fr.diginamic.hello.services.DepartementService;
 import fr.diginamic.hello.services.VilleService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,18 +31,20 @@ public class DepartementControleur {
     private DepartementService departementService;
     @Autowired
     private VilleService villeService;
+    @Autowired
+    private DepartementMapper departementMapper;
 
     //  MÉTHODE GET POUR OBTENIR TOUT LES DEPARTEMENT
     @GetMapping
     public List<DepartementDto> getAllDepartements() {
-        return departementService.extractDepartements();
+        return departementMapper.toDto(departementService.extractDepartements());
     }
 
     //  MÉTHODE GET POUR OBTENIR UN DEPARTEMENT PAR SON ID
     @GetMapping(path = "/id/{id}")
     public ResponseEntity<DepartementDto> getDepartementById(@PathVariable int id) {
 
-        DepartementDto departement = departementService.extractDepartementByID(id);
+        DepartementDto departement = departementMapper.toDto(departementService.extractDepartementByID(id));
 
         if (departement == null) {
             return ResponseEntity.notFound().build();
@@ -56,7 +57,7 @@ public class DepartementControleur {
     @GetMapping(path = "/name/{name}")
     public ResponseEntity<DepartementDto> getDepartementByName(@PathVariable String name) {
 
-        DepartementDto departement = departementService.extractDepartementByName(name);
+        DepartementDto departement = departementMapper.toDto(departementService.extractDepartementByName(name));
 
         if (departement == null) {
             return ResponseEntity.notFound().build();
@@ -69,7 +70,7 @@ public class DepartementControleur {
     @GetMapping(path = "/code/{code}")
     public ResponseEntity<DepartementDto> getDepartementByCode(@PathVariable String code) throws DepartementNotFoundException {
 
-        DepartementDto departement = departementService.extractDepartementByCode(code);
+        DepartementDto departement = departementMapper.toDto(departementService.extractDepartementByCode(code));
 
 
         return ResponseEntity.ok(departement);
@@ -88,14 +89,14 @@ public class DepartementControleur {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        departementService.insertDepartement(departement);
+        departementService.insertDepartement(departementMapper.toBean(departement));
         return ResponseEntity.ok("Département insérée avec succès : " + departement.getNom());
 
     }
 
     //  MÉTHODE PUT POUR EDITER UN DEPARTEMENT
-    @PutMapping(path = "/edit")
-    public ResponseEntity<String> updateDepartement(@Valid @RequestBody DepartementDto departement, BindingResult bindingResult) throws InsertUpdateException {
+    @PutMapping(path = "/edit/{code}")
+    public ResponseEntity<String> updateDepartement(@Valid @PathVariable String code, @RequestBody DepartementDto departement, BindingResult bindingResult) throws InsertUpdateException {
 
         if (departement == null) {
             return ResponseEntity.badRequest().build();
@@ -105,7 +106,7 @@ public class DepartementControleur {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage());
         }
 
-        DepartementDto departementAModif = departementService.modifierDepartement(departement);
+        Departement departementAModif = departementService.modifierDepartement(code, departementMapper.toBean(departement));
 
         if (departementAModif == null) {
             return ResponseEntity.notFound().build();
@@ -119,7 +120,7 @@ public class DepartementControleur {
     @DeleteMapping(path = "/remove/{id}")
     public ResponseEntity<String> deleteDepartement(@PathVariable int id) {
 
-        DepartementDto departement = departementService.supprimerDepartement(id);
+        Departement departement = departementService.supprimerDepartement(id);
 
         if (departement == null) {
             return ResponseEntity.notFound().build();

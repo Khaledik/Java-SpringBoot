@@ -1,18 +1,15 @@
 package fr.diginamic.hello.services;
 
-import fr.diginamic.hello.dtos.DepartementDto;
-import fr.diginamic.hello.dtos.VilleDto;
 import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.exceptions.DepartementNotFoundException;
 import fr.diginamic.hello.exceptions.InsertUpdateException;
-import fr.diginamic.hello.exceptions.VilleNotFoundException;
 import fr.diginamic.hello.mappers.DepartementMapper;
 import fr.diginamic.hello.repositories.DepartementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,66 +21,66 @@ public class DepartementService {
     @Autowired
     private DepartementMapper departementMapper;
 
-    private void validateDepartement(DepartementDto departementDto) throws InsertUpdateException {
+    private void validateDepartement(Departement departement) throws InsertUpdateException {
 
-        if (departementDto.getCode().length() < 2 || departementDto.getCode().length() > 3) {
+        if (departement.getCode().length() < 2 || departement.getCode().length() > 3) {
             throw new InsertUpdateException("Le code département fait au maximum 3 caractères et au minimum 2.");
-        } else if (departementDto.getNom().length() < 3) {
+        } else if (departement.getNom().length() < 3) {
             throw new InsertUpdateException("Le nom du département est obligatoire et comporte au moins 3 lettres.");
         }
 
-        Departement existingDepartement = departementRepository.findByCode(departementDto.getCode());
+        Departement existingDepartement = departementRepository.findByCode(departement.getCode());
 
         if (existingDepartement != null) {
-            throw new InsertUpdateException("Un département avec le code " + departementDto.getCode() + " existe déjà.");
+            throw new InsertUpdateException("Un département avec le code " + departement.getCode() + " existe déjà.");
         }
 
     }
 
     @Transactional
-    public List<DepartementDto> extractDepartements() {
+    public List<Departement> extractDepartements() {
 
         List<Departement> departements = departementRepository.findAll();
-        List<DepartementDto> departementDto = new ArrayList<>();
-
-        for (Departement departement : departements) {
-            departementDto.add(departementMapper.toDto(departement));
-        }
 
 
-        return departementDto;
+        return departements;
     }
 
 
     @Transactional
-    public DepartementDto extractDepartementByID(int id) {
-
+    public Departement extractDepartementByID(int id) {
         Optional<Departement> departement = departementRepository.findById(id);
 
-        if (departement.isPresent()) {
-            DepartementDto departementDto = departementMapper.toDto(departement.get());
-            return departementDto;
+        if (departement.isEmpty()) {
+            throw new DepartementNotFoundException("Aucun départements dont l'id est " + id + " n’a été trouvé.");
         } else {
-            return null;
+            return departement.get();
         }
 
     }
 
 
     @Transactional
-    public DepartementDto extractDepartementByName(String name) {
+    public Departement extractDepartementByName(String name) {
         Departement departement = departementRepository.findByNom(name);
-        return departementMapper.toDto(departement);
+
+        if (departement == null) {
+            throw new DepartementNotFoundException("Aucun départements dont le nom est " + name + " n’a été trouvé.");
+        } else {
+            return departement;
+        }
+
     }
 
-    public DepartementDto extractDepartementByCode(String code) throws DepartementNotFoundException {
+    public Departement extractDepartementByCode(String code) throws DepartementNotFoundException {
         Departement departement = departementRepository.findByCode(code);
 
         if (departement == null) {
             throw new DepartementNotFoundException("Le département avec le code " + code + " n'a pas été trouvé.");
+        } else {
+            return departement;
         }
 
-        return departementMapper.toDto(departement);
     }
 
     public Integer extractNbHabitantsByDepartement(String code) {
@@ -93,57 +90,59 @@ public class DepartementService {
 
 
     @Transactional
-    public DepartementDto insertDepartement(DepartementDto departementDto) throws InsertUpdateException {
+    public List<Departement> insertDepartement(Departement departement) throws InsertUpdateException {
 
-        validateDepartement(departementDto);
+        validateDepartement(departement);
 
-        Departement departement = departementMapper.toBean(departementDto);
 
         departementRepository.save(departement);
 
-        return departementDto;
+        return extractDepartements();
     }
 
     @Transactional
-    public DepartementDto modifierDepartement(DepartementDto departementDto) throws InsertUpdateException {
+    public Departement modifierDepartement(String code, Departement departement) throws InsertUpdateException {
 
-        validateDepartement(departementDto);
+        validateDepartement(departement);
 
-        Departement departement = departementMapper.toBean(departementDto);
 
-        Departement departementAModif = departementRepository.findByCode(departement.getCode());
+        Departement departementAModif = departementRepository.findByCode(code);
+
+        if (departementAModif == null) {
+            throw new DepartementNotFoundException("Aucun départements n’a été trouvé.");
+        }
+
 
         departementAModif.setNom(departement.getNom());
         departementAModif.setCode(departement.getCode());
 
         departementRepository.save(departementAModif);
 
-        return departementDto;
+        return departementAModif;
     }
 
     @Transactional
-    public DepartementDto supprimerDepartement(int id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public Departement supprimerDepartement(int id) {
 
         Optional<Departement> departement = departementRepository.findById(id);
 
-        DepartementDto departementDto;
 
         if (departement.isPresent()) {
             departementRepository.deleteById(id);
-            departementDto = departementMapper.toDto(departement.get());
+            return departement.get();
         } else {
-            return null;
+            throw new DepartementNotFoundException("Aucun départements dont l'id est " + id + " n’a été trouvé.");
         }
 
 
-        return departementDto;
     }
 
 
     @Transactional
     public byte[] exportToCsv() throws DepartementNotFoundException {
 
-        List<DepartementDto> departementDtos = extractDepartements();
+        List<Departement> departementDtos = extractDepartements();
 
         if (departementDtos.isEmpty()) {
             throw new DepartementNotFoundException("Aucun départements n’a été trouvée.");
@@ -154,7 +153,7 @@ public class DepartementService {
         StringBuilder csvText = new StringBuilder();
         csvText.append(CSV_HEADER);
 
-        for (DepartementDto departement : departementDtos) {
+        for (Departement departement : departementDtos) {
             csvText.append(departement.getCode() + ";");
             csvText.append(departement.getNom() + "\n");
         }
